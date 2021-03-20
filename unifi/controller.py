@@ -51,7 +51,7 @@ class Controller:
     >>> from unifi.controller import Controller
     >>> c = Controller('192.168.1.99', 'admin', 'p4ssw0rd')
     >>> for ap in c.get_aps():
-    ...     print 'AP named %s with MAC %s' % (ap.get('name'), ap['mac'])
+    ...     print 'AP named %s with MAC %s' % (ap['name'], ap['mac'])
     ...
     AP named Study with MAC dc:9f:db:1a:59:07
     AP named Living Room with MAC dc:9f:db:1a:59:08
@@ -67,7 +67,7 @@ class Controller:
             username -- the username to log in with
             password -- the password to log in with
             port     -- the port of the controller host
-            version  -- the base version of the controller API [v2|v3|v4|v5]
+            version  -- the base version of the controller API [v2|v3|v4|udm]
             site_id  -- the site ID to connect to (UniFi >= 3.x)
 
         """
@@ -78,7 +78,11 @@ class Controller:
         self.username = username
         self.password = password
         self.site_id = site_id
-        self.url = 'https://' + host + ':' + str(port) + '/'
+        if (version == 'udm'):
+            self.url = 'https://' + host + '/'
+        else:
+            self.url = 'https://' + host + ':' + str(port) + '/'
+
         self.api_url = self.url + self._construct_api_path(version)
 
         log.debug('Controller for %s', self.url)
@@ -130,6 +134,7 @@ class Controller:
 
         V2_PATH = 'api/'
         V3_PATH = 'api/s/' + self.site_id + '/'
+        UDM_PATH = 'proxy/network/api/s/' + self.site_id + '/'
 
         if(version == 'v2'):
             return V2_PATH
@@ -139,6 +144,8 @@ class Controller:
             return V3_PATH
         if(version == 'v5'):
             return V3_PATH
+        if(version == 'udm'):
+            return UDM_PATH
         else:
             return V2_PATH
 
@@ -148,7 +155,10 @@ class Controller:
         params = {'username': self.username, 'password': self.password}
         login_url = self.url
 
-        if version == 'v4' or version == 'v5':
+        if version == 'udm':
+            login_url += 'api/auth/login'
+            params= 'username=' + self.username + '&password=' + self.password
+        elif version == 'v4' or version == 'v5':
             login_url += 'api/login'
             params = json.dumps(params)
         else:
