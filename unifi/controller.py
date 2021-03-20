@@ -212,9 +212,7 @@ class Controller:
     def get_aps(self):
         """Return a list of all AP:s, with significant information about each."""
 
-        #Set test to 0 instead of NULL
-        params = json.dumps({'_depth': 2, 'test': 0})
-        return self._read(self.api_url + 'stat/device', params)
+        return self._read(self.api_url + 'stat/device')
 
     def get_clients(self):
         """Return a list of all active clients, with significant information about each."""
