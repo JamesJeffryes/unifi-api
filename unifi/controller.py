@@ -78,10 +78,7 @@ class Controller:
         self.username = username
         self.password = password
         self.site_id = site_id
-        if (version == 'udm'):
-            self.url = 'https://' + host + '/'
-        else:
-            self.url = 'https://' + host + ':' + str(port) + '/'
+        self.url = 'https://' + host + ':' + str(port) + '/'
 
         self.api_url = self.url + self._construct_api_path(version)
 
